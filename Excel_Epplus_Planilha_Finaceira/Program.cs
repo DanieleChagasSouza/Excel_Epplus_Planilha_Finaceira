@@ -97,7 +97,10 @@ class Program
                 sheet.Cells[linhaDespesa, 4].Value = despesa.Valor;
                 linhaDespesa++;
             }
+
+            // Define o formato das células de valores
             sheet.Column(4).Style.Numberformat.Format = "0.00";
+
             // Resumo financeiro
             int linhaResumo = linhaDespesa + 1;
             sheet.Cells[linhaResumo, 1].Value = "Resumo Financeiro";
