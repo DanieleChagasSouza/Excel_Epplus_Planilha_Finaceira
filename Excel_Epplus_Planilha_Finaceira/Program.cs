@@ -1,5 +1,4 @@
-﻿
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 
 class Program
 {
@@ -50,6 +49,10 @@ class Program
             // Cabeçalho da planilha
             sheet.Cells[1, 1].Value = "Nome da Empresa: New Show Tech Brazil";
             sheet.Cells[1, 2].Value = "Período Financeiro: Janeiro 2024";
+
+            // Adiciona cor de fundo ao cabeçalho de resumo financeiro
+            sheet.Cells["A1:D1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            sheet.Cells["A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
 
             // Títulos da seção de receitas
             sheet.Cells[4, 1].Value = "Receitas";
@@ -106,6 +109,10 @@ class Program
             sheet.Cells[linhaResumo, 1].Value = "Resumo Financeiro";
             sheet.Cells[linhaResumo + 1, 1].Value = "Receita Total";
             sheet.Cells[linhaResumo + 1, 4].Formula = $"SUM(D6:D{linhaReceita - 1})";
+
+            // Adiciona cor de fundo ao cabeçalho de resumo financeiro
+            sheet.Cells["A19:D19"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            sheet.Cells["A19:D19"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.DarkOrange);
 
             sheet.Cells[linhaResumo + 2, 1].Value = "Despesa Total";
             sheet.Cells[linhaResumo + 2, 4].Formula = $"SUM(D{linhaDespesaTitulo + 2}:D{linhaDespesa - 1})";
