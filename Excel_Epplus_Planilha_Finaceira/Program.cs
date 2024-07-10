@@ -19,23 +19,26 @@ class Program
 
     private static void CriarPlanilhaExcel(string caminhoDoArquivo)
     {
+        // Taxa de conversão
+        const double taxaCambioUSDToBRL = 5.0; // Exemplo: 1 USD = 5 BRL
+
         // Define dados fictícios
         var receitasEmpresas = new[]
         {
-            new {Data = "11/01/2024", Descricao = "venda de Produto", Categoria = "Vendas", Valor = 1500.00 },
-            new {Data = "10/01/2024", Descricao = "Investimento", Categoria = "Investimentos", Valor = 5000.00 },
-            new {Data = "04/01/2024", Descricao = "Administrativo", Categoria = "Administrativos", Valor = 2500.00 },
-            new {Data = "01/01/2024", Descricao = "Recursos Humanos", Categoria = "Gestão e Gente", Valor = 3500.00 },
-            new {Data = "19/06/2024", Descricao = "Setor operacional", Categoria = "Operações", Valor = 1200.00 }
+            new {Data = "11/01/2024", Descricao = "venda de Produto", Categoria = "Vendas", Valor = 1500.00, Moeda = "BRL"},
+            new {Data = "10/01/2024", Descricao = "Investimento", Categoria = "Investimentos", Valor = 5000.00, Moeda = "BRL"},
+            new {Data = "04/01/2024", Descricao = "Administrativo", Categoria = "Administrativos", Valor = 2500.00, Moeda = "USD" },
+            new {Data = "01/01/2024", Descricao = "Recursos Humanos", Categoria = "Gestão e Gente", Valor = 3500.00, Moeda = "BRL"},
+            new {Data = "19/06/2024", Descricao = "Setor operacional", Categoria = "Operações", Valor = 1200.00, Moeda = "USD" }
 
        };
         // Define dados fictícios
         var despesas = new[]
         {
-            new { Data = "02/01/2024", Descricao = "Pagamento de Salários", Categoria = "Salários", Valor = 3000.00 },
-            new { Data = "10/01/2024", Descricao = "Campanha de Marketing", Categoria = "Marketing", Valor = 1200.00 },
-            new { Data = "15/01/2024", Descricao = "Pagamento de Faturas", Categoria = "Pagamentos", Valor = 2000.00 },
-            new { Data = "30/01/2024", Descricao = "Administrativo", Categoria = "Administrativos", Valor = 1600.00 }
+            new { Data = "02/01/2024", Descricao = "Pagamento de Salários", Categoria = "Salários", Valor = 3000.00, Moeda = "BRL"},
+            new { Data = "10/01/2024", Descricao = "Campanha de Marketing", Categoria = "Marketing", Valor = 1200.00, Moeda = "BRL" },
+            new { Data = "15/01/2024", Descricao = "Pagamento de Faturas", Categoria = "Pagamentos", Valor = 2000.00 , Moeda = "USD"},
+            new { Data = "30/01/2024", Descricao = "Administrativo", Categoria = "Administrativos", Valor = 1600.00, Moeda = "USD" }
         };
 
         // Define o contexto de licença para uso não comercial do EPPlus
@@ -50,16 +53,16 @@ class Program
             sheet.Cells[1, 1].Value = "Nome da Empresa: New Show Tech Brazil";
             sheet.Cells[1, 2].Value = "Período Financeiro: Janeiro 2024";
 
-            // Adiciona cor de fundo ao cabeçalho de resumo financeiro
+            // Adiciona cor de fundo ao cabeçalho de Nome da Empresa
             sheet.Cells["A1:D1"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
             sheet.Cells["A1:D1"].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightBlue);
 
             // Títulos da seção de receitas
-            sheet.Cells[4, 1].Value = "Receitas";
+            sheet.Cells[4, 1].Value = "RECEITAS";
             sheet.Cells[5, 1].Value = "Data";
             sheet.Cells[5, 2].Value = "Descrição";
             sheet.Cells[5, 3].Value = "Categoria";
-            sheet.Cells[5, 4].Value = "Valor";
+            sheet.Cells[5, 4].Value = "Valor (BRL)";
 
             // Adiciona cor de fundo ao cabeçalho
             sheet.Cells["A5:D5"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -70,21 +73,26 @@ class Program
 
             foreach (var receita in receitasEmpresas)
             {
+                double valorConvertido = receita.Valor;
+                if (receita.Moeda == "USD")
+                {
+                    valorConvertido *= taxaCambioUSDToBRL;
+                }
                 sheet.Cells[linhaReceita, 1].Value = receita.Data;
                 sheet.Cells[linhaReceita, 2].Value = receita.Descricao;
                 sheet.Cells[linhaReceita, 3].Value = receita.Categoria;
-                sheet.Cells[linhaReceita, 4].Value = receita.Valor;
+                sheet.Cells[linhaReceita, 4].Value = valorConvertido;
                 linhaReceita++;
             }
 
             // Títulos da seção de despesas
             int linhaDespesaTitulo = linhaReceita + 1;
 
-            sheet.Cells[linhaDespesaTitulo, 1].Value = "Despesas";
+            sheet.Cells[linhaDespesaTitulo, 1].Value = "DESPESAS";
             sheet.Cells[linhaDespesaTitulo + 1, 1].Value = "Data";
             sheet.Cells[linhaDespesaTitulo + 1, 2].Value = "Descrição";
             sheet.Cells[linhaDespesaTitulo + 1, 3].Value = "Categoria";
-            sheet.Cells[linhaDespesaTitulo + 1, 4].Value = "Valor";
+            sheet.Cells[linhaDespesaTitulo + 1, 4].Value = "Valor (BRL)";
 
             // Adiciona cor de fundo ao cabeçalho
             sheet.Cells[$"A{linhaDespesaTitulo + 1}:D{linhaDespesaTitulo + 1}"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -94,15 +102,20 @@ class Program
             int linhaDespesa = linhaDespesaTitulo + 2;
             foreach (var despesa in despesas)
             {
+                double valorConvertido = despesa.Valor;
+                if(despesa.Moeda == "USD")
+                {
+                    valorConvertido *= taxaCambioUSDToBRL;
+                }
                 sheet.Cells[linhaDespesa, 1].Value = despesa.Data;
                 sheet.Cells[linhaDespesa, 2].Value = despesa.Descricao;
                 sheet.Cells[linhaDespesa, 3].Value = despesa.Categoria;
-                sheet.Cells[linhaDespesa, 4].Value = despesa.Valor;
+                sheet.Cells[linhaDespesa, 4].Value = valorConvertido;
                 linhaDespesa++;
             }
 
             // Define o formato das células de valores
-            sheet.Column(4).Style.Numberformat.Format = "0.00";
+            sheet.Column(4).Style.Numberformat.Format = "R$ #,##0.00";
 
             // Resumo financeiro
             int linhaResumo = linhaDespesa + 1;
@@ -118,7 +131,7 @@ class Program
             sheet.Cells[linhaResumo + 2, 4].Formula = $"SUM(D{linhaDespesaTitulo + 2}:D{linhaDespesa - 1})";
 
             sheet.Cells[linhaResumo + 3, 1].Value = "Saldo";
-            sheet.Cells[linhaResumo + 3, 4].Formula = $"B{linhaResumo + 1} - B{linhaResumo + 2}";
+            sheet.Cells[linhaResumo + 3, 4].Formula = $"D{linhaResumo + 1} - D{linhaResumo + 2}";
 
             // Ajusta automaticamente a largura das colunas
             sheet.Column(1).AutoFit();
